@@ -8,15 +8,14 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Tappa · la guida a piedi di Roma per i tuoi ospiti">
 <meta property="og:description" content="Sei itinerari in quattro lingue, un QR code in camera. Il servizio che i B&B offrono ai propri ospiti.">
-<meta property="og:url" content="https://tappaguide.github.io/">
-<meta property="og:image" content="https://tappaguide.github.io/img/anteprima-condivisione.jpg?v=2">
+<meta property="og:url" content="https://tappaguide.it/">
+<meta property="og:image" content="https://tappaguide.it/img/anteprima-condivisione.jpg?v=3">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="img/favicon.png?v=2">
-<link rel="apple-touch-icon" href="img/apple-touch-icon.png?v=2">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"><style>
+<link rel="icon" href="img/favicon.png?v=3">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png?v=3">
+<link rel="stylesheet" href="/fonts/fonts.css"><style>
 :root{--bg:#ECEDE8;--surface:#F7F7F3;--ink:#1E2225;--muted:#59615D;--line:#C6CBC3;--primary:#2D5843;--primary-ink:#F2F6F1;--hi:#D7AC62;--soft:#E3ECE6}
 *{box-sizing:border-box} [hidden]{display:none!important} html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:20px/1.6 'IBM Plex Sans', system-ui, sans-serif;-webkit-font-smoothing:antialiased}
@@ -125,11 +124,11 @@ header{position:absolute;inset:0 0 auto;z-index:3} header .wrap{display:flex;jus
   <p data-addr style="margin-top:20px;font-size:18px"></p>
 </div></section>
 </main>
-<footer><div class="wrap" style="display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between"><span><b style="color:var(--ink)">Tappa</b> · Guide a piedi di Roma per le strutture ricettive</span><span data-legal></span><a data-ig hidden target="_blank" rel="noopener">Instagram</a></div></footer>
+<footer><div class="wrap" style="display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between"><span><b style="color:var(--ink)">Tappa</b> · Guide a piedi di Roma per le strutture ricettive</span><span data-legal></span><a href="/privacy/" style="color:inherit">Privacy</a><a data-ig hidden target="_blank" rel="noopener">Instagram</a></div></footer>
 <div class="mbar"><a class="btn p" href="#prova">Prova gratis un mese</a></div>
 <script>
 /* Compila qui i contatti: i campi vuoti non compaiono nella pagina */
-const CONTATTI = {"whatsapp": "", "email": "", "piva": "", "instagram": "", "titolare": ""};
+const CONTATTI = {"whatsapp": "", "email": "tappa.guide@gmail.com", "piva": "18276761006", "instagram": "", "titolare": "Danilo Maria Forgione"};
 (function () {
   const c = CONTATTI, q = s => document.querySelectorAll(s);
   if (c.whatsapp) { const n = c.whatsapp.replace(/\D/g, ""); q("[data-wa]").forEach(a => { a.href = "https://wa.me/" + n + "?text=" + encodeURIComponent("Ciao, vorrei provare Tappa per la mia struttura: "); a.hidden = false; }); }
