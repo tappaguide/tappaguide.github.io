@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Appia a piedi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: una colonna stretta come una strada; le tappe scorrono lungo una linea con i miliari romani a sinistra. */
+:root {
+  --bg: #FFFFFF;        /* versione bianca, sempre chiara */
+  --surface: #F5F6F3;
+  --ink: #1E2225;       /* basolato */
+  --muted: #59615D;
+  --line: #C6CBC3;
+  --pine: #2D5843;      /* pino domestico */
+  --pine-ink: #F2F6F1;
+  --ochre: #8F6219;     /* incisione sui miliari */
+  --display: "Marcellus", "Trajan Pro", Georgia, serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+:root { color-scheme: light; }
+:root[data-mode="dark"] {
+  --bg: #121514; --surface: #1B1F1D; --ink: #E6E8E3; --muted: #9AA39D;
+  --line: #323835; --pine: #82B898; --pine-ink: #0E1913; --ochre: #D7AC62;
+  color-scheme: dark;
+}
+.mode {
+  position: fixed; z-index: 20;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(0,0,0,.12);
+}
+.mode svg { width: 20px; height: 20px; }
+.mode.away { transform: translateY(calc(-100% - 24px - env(safe-area-inset-top, 0px))); opacity: 0; pointer-events: none; }
+.mode:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) { .mode { transition: transform .25s ease, opacity .25s ease; } }
+.demo { margin-right: 54px; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--body); font-size: 16px; line-height: 1.55;
+}
+.wrap {
+  max-width: 680px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.demo {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ochre); border: 1px dashed var(--ochre); border-radius: 6px;
+  padding: 8px 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between;
+}
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.host { font-size: 14px; color: var(--muted); }
+.host b { color: var(--ink); font-weight: 600; }
+.langs { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.langs button {
+  font: 500 13px var(--mono); letter-spacing: .05em; color: var(--muted);
+  background: none; border: 0; border-radius: 999px; padding: 6px 11px; cursor: pointer;
+}
+.langs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.langs button:focus-visible, .btn:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+h1 {
+  font-family: var(--display); font-weight: 400; font-size: clamp(38px, 9vw, 56px);
+  line-height: 1.02; letter-spacing: .01em; margin: 28px 0 10px; text-wrap: balance;
+}
+.lead { margin: 0; color: var(--muted); max-width: 58ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 18px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.facts li { display: flex; gap: 6px; }
+.facts span { color: var(--muted); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font: 600 14px var(--body); text-decoration: none; border-radius: 8px;
+  padding: 9px 14px; border: 1px solid var(--pine); min-height: 40px;
+}
+.btn.primary { background: var(--pine); color: var(--pine-ink); }
+.btn.ghost { color: var(--pine); background: transparent; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.allroute { margin-top: 20px; }
+h2 {
+  font-family: var(--display); font-weight: 400; font-size: 28px; margin: 48px 0 6px;
+}
+.sub { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
+
+/* Tappe lungo la strada */
+.road { list-style: none; margin: 0; padding: 0; position: relative; }
+.road::before {
+  content: ""; position: absolute; left: 39px; top: 8px; bottom: 8px; width: 2px;
+  background: repeating-linear-gradient(var(--line) 0 10px, transparent 10px 16px);
+}
+.stop { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 14px; padding-block: 14px 22px; position: relative; }
+.mile {
+  justify-self: center; align-self: start; position: relative; z-index: 1;
+  width: 64px; padding: 8px 4px 6px; text-align: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 26px 26px 4px 4px;
+}
+.mile small { display: block; font: 500 9px var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.mile strong { display: block; font: 400 22px var(--display); color: var(--ochre); line-height: 1.1; }
+.stop h3 { font-family: var(--display); font-weight: 400; font-size: 23px; line-height: 1.2; margin: 4px 0 6px; text-wrap: balance; }
+.stop p { margin: 0 0 10px; max-width: 60ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.chip { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.chip.free { color: var(--pine); border-color: var(--pine); }
+.tip { font-size: 14px; color: var(--muted); border-left: 2px solid var(--ochre); padding-left: 10px; margin: 0 0 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.routegroup { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.app { display: inline-flex; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.app button { font: 500 12px var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 5px 9px; cursor: pointer; }
+.app button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.app button:focus-visible { outline: 2px solid var(--pine); outline-offset: 1px; }
+#allnote { margin: 8px 0 0; font-size: 13.5px; }
+
+/* Dove mangiare */
+.food { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.place { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.place h3 { font-size: 17px; font-weight: 600; margin: 0; }
+.kind { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ochre); }
+.place p { margin: 2px 0 0; font-size: 14.5px; color: var(--muted); grid-column: 1 / -1; max-width: 60ch; }
+.meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; margin-top: 6px; align-items: center; }
+.meta .tel { font-family: var(--mono); font-size: 13px; user-select: all; }
+.meta a { color: var(--pine); font-weight: 600; text-decoration: none; }
+.place .addr { font-size: 13px; color: var(--muted); text-align: right; }
+
+.hostbox {
+  margin-top: 40px; padding: 18px 18px 16px; border-radius: 10px;
+  background: var(--surface); border: 1px dashed var(--ochre);
+}
+.hostbox .kind { display: block; margin-bottom: 6px; }
+.hostbox p { margin: 0; }
+footer { margin-top: 36px; font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+@media (max-width: 420px) {
+  .stop { grid-template-columns: 58px minmax(0, 1fr); gap: 10px; }
+  .road::before { left: 28px; }
+  .mile { width: 52px; }
+  .mile strong { font-size: 19px; }
+  .place { grid-template-columns: minmax(0, 1fr); }
+  .place .addr { text-align: left; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: filter .15s; }
+  .btn:hover { filter: brightness(1.08); }
+}
+</style>
+
+<button type="button" class="mode" id="mode"></button>
+
+<div class="wrap">
+  <div class="demo" id="demo"><span data-t="demo"></span><span data-t="demo2"></span></div>
+
+  <div class="top">
+    <div class="host"><span data-t="from"></span> <b>B&amp;B Casa dei Basoli</b></div>
+    <div class="langs" role="group" aria-label="Lingua / Language">
+      <button type="button" id="lang-it" data-lang="it">IT</button>
+      <button type="button" id="lang-en" data-lang="en">EN</button>
+      <button type="button" id="lang-fr" data-lang="fr">FR</button>
+      <button type="button" id="lang-de" data-lang="de">DE</button>
+    </div>
+  </div>
+
+  <h1>Via Appia Antica</h1>
+  <p class="lead" data-t="lead"></p>
+  <ul class="facts">
+    <li><span data-t="f_len"></span> <b>≈ 3 km</b></li>
+    <li><span data-t="f_time"></span> <b data-t="f_timev"></b></li>
+    <li><span data-t="f_closed"></span> <b data-t="f_closedv"></b></li>
+  </ul>
+  <div class="allroute"><a class="btn primary" id="allroute" target="_blank" rel="noopener"></a></div>
+  <p class="sub" id="allnote" hidden></p>
+
+  <h2 data-t="h_tour"></h2>
+  <p class="sub" data-t="s_tour"></p>
+  <ol class="road" id="road"></ol>
+
+  <h2 data-t="h_food"></h2>
+  <p class="sub" data-t="s_food"></p>
+  <div class="food" id="food"></div>
+
+  <div class="hostbox">
+    <span class="kind" data-t="host_k"></span>
+    <p data-t="host_tip"></p>
+  </div>
+
+  <footer>
+    <span data-t="foot1"></span>
+    <span data-t="foot2"></span>
+  </footer>
+</div>
+
+<script>
+const UI = {
+  it: {
+    demo: "Demo", demo2: "Qui nome, logo e consigli della tua struttura",
+    from: "Una guida offerta da", lead: "A piedi da Porta San Sebastiano a Capo di Bove, lungo la strada più antica di Roma. Ogni tappa ha il percorso dalla tua posizione e una pagina per saperne di più.",
+    f_len: "Lunghezza", f_time: "Tempo", f_timev: "3–4 ore con le visite", f_closed: "Attenzione", f_closedv: "molti siti chiudono il lunedì",
+    all: "Apri l'intero percorso a piedi", h_tour: "Le tappe", s_tour: "Nell'ordine in cui le incontri camminando verso sud.",
+    route: "Percorso", more: "Scopri", h_food: "Dove mangiare", s_food: "Selezione lungo il percorso. Chiama prima nei festivi.",
+    map: "Mappa", closed: "Chiuso", always: "Aperto tutti i giorni",
+    host_k: "Il consiglio dell'host", host_tip: "Scarpe comode: il basolato romano è irregolare. Portate acqua, perché dopo Capo di Bove i bar sono pochi. Spazio per i consigli personali della struttura.",
+    foot1: "Miglio = miglio romano, circa 1.480 m, contato dall'antica Porta Capena.",
+    foot2: "Orari e prezzi indicativi: verificali sui siti ufficiali prima della visita.",
+    k_quick: "Pausa", k_tratt: "Trattoria", k_exp: "Esperienza", mile: "Miglio",
+    appG: "Google Maps", appA: "Mappe", appQ: "Apri con",
+    note_apple: "Il percorso completo a più tappe si apre in Google Maps: Mappe di Apple non lo supporta a piedi."
+  },
+  en: {
+    demo: "Demo", demo2: "Your property's name, logo and tips go here",
+    from: "A guide from", lead: "On foot from Porta San Sebastiano to Capo di Bove, along Rome's oldest road. Every stop has walking directions from where you are and a page to learn more.",
+    f_len: "Length", f_time: "Time", f_timev: "3–4 hours with visits", f_closed: "Note", f_closedv: "many sites close on Mondays",
+    all: "Open the full walking route", h_tour: "The stops", s_tour: "In the order you meet them walking south.",
+    route: "Directions", more: "Learn more", h_food: "Where to eat", s_food: "Picks along the route. Call ahead on public holidays.",
+    map: "Map", closed: "Closed", always: "Open every day",
+    host_k: "Your host's tip", host_tip: "Wear comfortable shoes: the Roman paving is uneven. Bring water, as there are few cafés after Capo di Bove. This space holds the property's own tips.",
+    foot1: "Mile = Roman mile, about 1,480 m, counted from the ancient Porta Capena.",
+    foot2: "Opening hours and prices are indicative: check the official sites before you go.",
+    k_quick: "Quick stop", k_tratt: "Trattoria", k_exp: "Experience", mile: "Mile",
+    appG: "Google Maps", appA: "Apple Maps", appQ: "Open with",
+    note_apple: "The full multi-stop route opens in Google Maps: Apple Maps doesn't support it on foot."
+  },
+  fr: {
+    demo: "Démo", demo2: "Ici, le nom, le logo et les conseils de votre établissement",
+    from: "Un guide offert par", lead: "À pied de la Porta San Sebastiano à Capo di Bove, sur la plus ancienne route de Rome. Chaque étape propose l'itinéraire depuis votre position et une page pour en savoir plus.",
+    f_len: "Longueur", f_time: "Durée", f_timev: "3 à 4 h avec les visites", f_closed: "Attention", f_closedv: "beaucoup de sites ferment le lundi",
+    all: "Ouvrir tout l'itinéraire à pied", h_tour: "Les étapes", s_tour: "Dans l'ordre où vous les rencontrez en allant vers le sud.",
+    route: "Itinéraire", more: "En savoir plus", h_food: "Où manger", s_food: "Sélection le long du parcours. Appelez avant les jours fériés.",
+    map: "Carte", closed: "Fermé", always: "Ouvert tous les jours",
+    host_k: "Le conseil de votre hôte", host_tip: "Chaussures confortables : les pavés romains sont irréguliers. Prenez de l'eau, il y a peu de cafés après Capo di Bove. Cet espace accueille les conseils de l'établissement.",
+    foot1: "Mille = mille romain, environ 1 480 m, compté depuis l'ancienne Porta Capena.",
+    foot2: "Horaires et prix indicatifs : vérifiez-les sur les sites officiels avant la visite.",
+    k_quick: "Pause", k_tratt: "Trattoria", k_exp: "Expérience", mile: "Mille",
+    appG: "Google Maps", appA: "Plans", appQ: "Ouvrir avec",
+    note_apple: "L'itinéraire complet à plusieurs étapes s'ouvre dans Google Maps : Plans d'Apple ne le permet pas à pied."
+  },
+  de: {
+    demo: "Demo", demo2: "Hier stehen Name, Logo und Tipps Ihrer Unterkunft",
+    from: "Ein Rundgang von", lead: "Zu Fuß von der Porta San Sebastiano bis Capo di Bove, auf der ältesten Straße Roms. Jede Station bietet den Weg von Ihrem Standort und eine Seite zum Weiterlesen.",
+    f_len: "Länge", f_time: "Dauer", f_timev: "3–4 Std. mit Besichtigungen", f_closed: "Hinweis", f_closedv: "viele Stätten sind montags geschlossen",
+    all: "Ganze Route zu Fuß öffnen", h_tour: "Die Stationen", s_tour: "In der Reihenfolge, in der Sie ihnen nach Süden begegnen.",
+    route: "Route", more: "Mehr erfahren", h_food: "Essen unterwegs", s_food: "Auswahl entlang der Strecke. An Feiertagen vorher anrufen.",
+    map: "Karte", closed: "Geschlossen", always: "Täglich geöffnet",
+    host_k: "Tipp Ihrer Gastgeber", host_tip: "Bequeme Schuhe: Das römische Pflaster ist uneben. Nehmen Sie Wasser mit, nach Capo di Bove gibt es kaum Cafés. Hier stehen die eigenen Tipps der Unterkunft.",
+    foot1: "Meile = römische Meile, etwa 1.480 m, gezählt ab der antiken Porta Capena.",
+    foot2: "Öffnungszeiten und Preise sind Richtwerte: Prüfen Sie sie vor dem Besuch auf den offiziellen Seiten.",
+    k_quick: "Pause", k_tratt: "Trattoria", k_exp: "Erlebnis", mile: "Meile",
+    appG: "Google Maps", appA: "Karten", appQ: "Öffnen mit",
+    note_apple: "Die ganze Route mit mehreren Stopps öffnet sich in Google Maps: Apple Karten unterstützt das zu Fuß nicht."
+  }
+};
+
+const DAYS = {
+  mon: { it: "lun", en: "Mon", fr: "lun", de: "Mo" },
+  tue: { it: "mar", en: "Tue", fr: "mar", de: "Di" },
+  wed: { it: "mer", en: "Wed", fr: "mer", de: "Mi" }
+};
+
+const STOPS = [
+  { mile: "I", dest: "Porta San Sebastiano, Roma",
+    name: { it: "Porta San Sebastiano", en: "Porta San Sebastiano", fr: "Porta San Sebastiano", de: "Porta San Sebastiano" },
+    wiki: { it: "Porta San Sebastiano", en: "Porta San Sebastiano", fr: "Porta San Sebastiano", de: "Porta San Sebastiano" },
+    text: {
+      it: "La porta più grande e meglio conservata delle Mura Aureliane, del III secolo. Qui la Via Appia esce dalla città e comincia la campagna.",
+      en: "The largest and best-preserved gate of the Aurelian Walls, from the 3rd century. Here the Appian Way leaves the city and the countryside begins.",
+      fr: "La plus grande et la mieux conservée des portes du mur d'Aurélien, du IIIe siècle. Ici, la Via Appia quitte la ville et la campagne commence.",
+      de: "Das größte und am besten erhaltene Tor der Aurelianischen Mauer aus dem 3. Jahrhundert. Hier verlässt die Via Appia die Stadt und die Campagna beginnt."
+    },
+    chips: [{ free: true, t: { it: "Museo delle Mura gratuito", en: "Museum of the Walls: free", fr: "Musée des Murs gratuit", de: "Mauermuseum: Eintritt frei" } }, { closed: "mon" }],
+    tip: {
+      it: "Fino a Quo Vadis la strada ha traffico e marciapiedi stretti: camminate in fila.",
+      en: "Up to Quo Vadis the road has traffic and narrow pavements: walk in single file.",
+      fr: "Jusqu'à Quo Vadis, la route a du trafic et des trottoirs étroits : marchez en file.",
+      de: "Bis Quo Vadis gibt es Verkehr und schmale Gehwege: hintereinander gehen."
+    } },
+  { mile: "I", dest: "Chiesa del Domine Quo Vadis, Via Appia Antica 51, Roma",
+    name: { it: "Domine Quo Vadis", en: "Domine Quo Vadis", fr: "Domine Quo Vadis", de: "Domine Quo Vadis" },
+    wiki: { it: "Chiesa del Domine Quo Vadis", en: "Santa Maria in Palmis", fr: "Domine Quo Vadis église", de: "Santa Maria in Palmis" },
+    text: {
+      it: "Piccola chiesa al bivio con la Via Ardeatina. La tradizione racconta che qui Pietro, in fuga da Roma, incontrò Gesù e gli chiese «Domine, quo vadis?». Dentro c'è una copia delle impronte attribuite a Cristo.",
+      en: "A small church at the fork with Via Ardeatina. Tradition says Peter, fleeing Rome, met Jesus here and asked “Domine, quo vadis?”. Inside is a copy of the footprints attributed to Christ.",
+      fr: "Petite église à l'embranchement avec la Via Ardeatina. Selon la tradition, Pierre, fuyant Rome, y rencontra Jésus et lui demanda « Domine, quo vadis ? ». À l'intérieur, une copie des empreintes attribuées au Christ.",
+      de: "Kleine Kirche an der Gabelung mit der Via Ardeatina. Der Überlieferung nach traf Petrus hier auf der Flucht aus Rom Jesus und fragte: „Domine, quo vadis?“ Drinnen liegt eine Kopie der Christus zugeschriebenen Fußabdrücke."
+    },
+    chips: [{ free: true, t: { it: "Ingresso libero", en: "Free entry", fr: "Entrée libre", de: "Eintritt frei" } }] },
+  { mile: "II", dest: "Catacombe di San Callisto, Via Appia Antica 110, Roma",
+    name: { it: "Catacombe di San Callisto", en: "Catacombs of St Callixtus", fr: "Catacombes de Saint-Calixte", de: "Calixtus-Katakomben" },
+    wiki: { it: "Catacombe di San Callisto", en: "Catacomb of Callixtus", fr: "Catacombes de Calixte", de: "Calixtus-Katakombe" },
+    text: {
+      it: "Tra le più grandi catacombe di Roma: quasi 20 km di gallerie su più piani e la Cripta dei Papi. Si visitano solo con guida, in circa 40 minuti.",
+      en: "One of Rome's largest catacombs: nearly 20 km of galleries on several levels and the Crypt of the Popes. Guided visits only, about 40 minutes.",
+      fr: "L'une des plus grandes catacombes de Rome : près de 20 km de galeries sur plusieurs niveaux et la crypte des Papes. Visite guidée uniquement, environ 40 minutes.",
+      de: "Eine der größten Katakomben Roms: fast 20 km Gänge auf mehreren Ebenen und die Papstgruft. Nur mit Führung, etwa 40 Minuten."
+    },
+    chips: [{ t: { it: "10 € con guida", en: "€10 guided tour", fr: "10 € avec guide", de: "10 € mit Führung" } }, { closed: "wed" }] },
+  { mile: "II–III", dest: "Villa di Massenzio, Via Appia Antica 153, Roma",
+    name: { it: "Villa di Massenzio", en: "Villa of Maxentius", fr: "Villa de Maxence", de: "Maxentiusvilla" },
+    wiki: { it: "Villa di Massenzio", en: "Villa of Maxentius", fr: "Villa de Maxence", de: "Maxentiusvilla" },
+    text: {
+      it: "Residenza dell'imperatore Massenzio, sconfitto da Costantino nel 312. Si vedono il circo per le corse dei carri, tra i meglio conservati, e il mausoleo del figlio Romolo.",
+      en: "Residence of Emperor Maxentius, defeated by Constantine in 312. You can see the chariot-racing circus, one of the best preserved, and the mausoleum of his son Romulus.",
+      fr: "Résidence de l'empereur Maxence, vaincu par Constantin en 312. On y voit le cirque des courses de chars, l'un des mieux conservés, et le mausolée de son fils Romulus.",
+      de: "Residenz von Kaiser Maxentius, der 312 Konstantin unterlag. Zu sehen sind der Circus für Wagenrennen, einer der besterhaltenen, und das Mausoleum seines Sohnes Romulus."
+    },
+    chips: [{ free: true, t: { it: "Gratuito · 10–16", en: "Free · 10am–4pm", fr: "Gratuit · 10 h–16 h", de: "Frei · 10–16 Uhr" } }, { closed: "mon" }] },
+  { mile: "III", dest: "Mausoleo di Cecilia Metella, Via Appia Antica 161, Roma",
+    name: { it: "Mausoleo di Cecilia Metella", en: "Tomb of Caecilia Metella", fr: "Tombeau de Caecilia Metella", de: "Grabmal der Caecilia Metella" },
+    wiki: { it: "Mausoleo di Cecilia Metella", en: "Tomb of Caecilia Metella", fr: "Tombeau de Caecilia Metella", de: "Grabmal der Caecilia Metella" },
+    text: {
+      it: "Il grande sepolcro cilindrico costruito poco dopo il 50 a.C. per Cecilia Metella, poi trasformato in fortezza nel Medioevo. Da qui l'Appia diventa basolato antico, pini e sepolcri.",
+      en: "The great cylindrical tomb built shortly after 50 BC for Caecilia Metella, later turned into a fortress in the Middle Ages. From here the road becomes ancient paving, pines and tombs.",
+      fr: "Le grand tombeau cylindrique bâti peu après 50 av. J.-C. pour Caecilia Metella, transformé en forteresse au Moyen Âge. Ensuite, la route n'est plus que pavés antiques, pins et tombeaux.",
+      de: "Das große zylindrische Grabmal, kurz nach 50 v. Chr. für Caecilia Metella errichtet und im Mittelalter zur Festung umgebaut. Danach wird die Straße zu antikem Pflaster mit Pinien und Gräbern."
+    },
+    chips: [{ t: { it: "Biglietto del Parco · gratis la 1ª domenica", en: "Park ticket · free on 1st Sunday", fr: "Billet du Parc · gratuit le 1er dimanche", de: "Parkticket · 1. Sonntag frei" } }, { closed: "mon" }] },
+  { mile: "IV", dest: "Complesso di Capo di Bove, Via Appia Antica 222, Roma",
+    name: { it: "Capo di Bove", en: "Capo di Bove", fr: "Capo di Bove", de: "Capo di Bove" },
+    wiki: { it: "Capo di Bove", en: "Capo di Bove", fr: "Capo di Bove", de: "Capo di Bove" },
+    text: {
+      it: "Un giardino con i resti delle terme di una tenuta del II secolo legata a Erode Attico e alla moglie Annia Regilla. Nella villa c'è l'archivio di Antonio Cederna, che si batté per salvare l'Appia.",
+      en: "A garden with the remains of baths from a 2nd-century estate linked to Herodes Atticus and his wife Annia Regilla. The villa holds the archive of Antonio Cederna, who fought to save the Appian Way.",
+      fr: "Un jardin avec les vestiges des thermes d'un domaine du IIe siècle lié à Hérode Atticus et à son épouse Annia Regilla. La villa abrite les archives d'Antonio Cederna, qui s'est battu pour sauver la Via Appia.",
+      de: "Ein Garten mit den Resten der Thermen eines Landguts aus dem 2. Jahrhundert, verbunden mit Herodes Atticus und seiner Frau Annia Regilla. In der Villa liegt das Archiv von Antonio Cederna, der für die Rettung der Via Appia kämpfte."
+    },
+    chips: [{ t: { it: "Biglietto del Parco · gratis la 1ª domenica", en: "Park ticket · free on 1st Sunday", fr: "Billet du Parc · gratuit le 1er dimanche", de: "Parkticket · 1. Sonntag frei" } }, { closed: "mon" }] }
+];
+
+const FOOD = [
+  { name: "Trattoria Priscilla", kind: "k_tratt", addr: "Via Appia Antica 68", tel: "+39 339 858 4089", closed: null,
+    t: { it: "Cucina romana casalinga e prezzi onesti, vicino a Quo Vadis. Ci mangiano anche i romani.",
+         en: "Home-style Roman cooking at fair prices, near Quo Vadis. Locals eat here too.",
+         fr: "Cuisine romaine familiale à prix honnêtes, près de Quo Vadis. Les Romains y mangent aussi.",
+         de: "Römische Hausmannskost zu fairen Preisen, nahe Quo Vadis. Auch Einheimische essen hier." } },
+  { name: "Appia Antica Caffè", kind: "k_quick", addr: "Via Appia Antica 175", tel: "+39 06 8987 9575", closed: "mon",
+    t: { it: "Caffè, gelati e piatti veloci all'aperto sotto un grande ulivo. Accanto si noleggiano le bici.",
+         en: "Coffee, ice cream and light dishes outdoors under a large olive tree. Bike rental next door.",
+         fr: "Café, glaces et plats simples en plein air sous un grand olivier. Location de vélos à côté.",
+         de: "Kaffee, Eis und kleine Gerichte im Freien unter einem großen Olivenbaum. Fahrradverleih nebenan." } },
+  { name: "Giardino di Giulia e fratelli", kind: "k_tratt", addr: "Via Appia Antica 176", tel: "+39 347 509 2772", closed: "mon",
+    t: { it: "Locale di famiglia con giardino e cucina romana. Aperto anche nel pomeriggio, comodo per un pranzo tardi.",
+         en: "Family-run place with a garden and Roman cooking. Open in the afternoon too, handy for a late lunch.",
+         fr: "Adresse familiale avec jardin et cuisine romaine. Ouvert l'après-midi, pratique pour un déjeuner tardif.",
+         de: "Familienbetrieb mit Garten und römischer Küche. Auch nachmittags geöffnet, gut für ein spätes Mittagessen." } },
+  { name: "Hostaria Antica Roma", kind: "k_exp", addr: "Via Appia Antica 176", tel: "+39 06 513 2888", closed: "mon",
+    t: { it: "Oltre alla cucina romana, un menu di ricette dell'antica Roma. Alcuni piatti vanno prenotati qualche giorno prima.",
+         en: "Besides Roman cooking, a menu of ancient Roman recipes. Some dishes must be booked a few days ahead.",
+         fr: "En plus de la cuisine romaine, un menu de recettes de la Rome antique. Certains plats se réservent quelques jours avant.",
+         de: "Neben römischer Küche ein Menü mit Rezepten aus dem antiken Rom. Manche Gerichte einige Tage vorher bestellen." } },
+  { name: "Garden Ristò", kind: "k_exp", addr: "Via Appia Antica 172", tel: "+39 06 7834 8607", closed: "mon",
+    t: { it: "Ristorante elegante dentro un vivaio, adatto a una cena speciale.",
+         en: "An elegant restaurant inside a plant nursery, good for a special dinner.",
+         fr: "Restaurant élégant installé dans une pépinière, idéal pour un dîner spécial.",
+         de: "Elegantes Restaurant in einer Gärtnerei, passend für ein besonderes Abendessen." } },
+  { name: "L'Archeologia", kind: "k_exp", addr: "Via Appia Antica 139", tel: "+39 06 788 0494", closed: "tue",
+    t: { it: "Storico e di fascia alta, con la cantina in un antico sepolcro. Nei giorni feriali apre solo a cena.",
+         en: "Historic and upscale, with a wine cellar inside an ancient tomb. On weekdays it opens for dinner only.",
+         fr: "Historique et haut de gamme, avec une cave dans un tombeau antique. En semaine, ouvert le soir seulement.",
+         de: "Traditionsreich und gehoben, der Weinkeller liegt in einem antiken Grab. Werktags nur abends geöffnet." } }
+];
+
+const ICON_ROUTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>';
+const ICON_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>';
+
+const walk = d => "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(d) + "&travelmode=walking";
+const search = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+const wiki = (l, q) => "https://" + l + ".wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(q) + "&go=Go";
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* App per il percorso: Mappe su iPhone/iPad, Google Maps altrove; la scelta resta salvata */
+let APP = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) ? "apple" : "google";
+try { const a = localStorage.getItem("appia-app"); if (a === "apple" || a === "google") APP = a; } catch (e) {}
+const routeUrl = d => APP === "apple" ? "https://maps.apple.com/?daddr=" + encodeURIComponent(d) + "&dirflg=w" : walk(d);
+const appPicker = u => `<span class="app" role="group" aria-label="${esc(u.appQ)}"><button type="button" data-app="google" aria-pressed="${APP === "google"}">${esc(u.appG)}</button><button type="button" data-app="apple" aria-pressed="${APP === "apple"}">${esc(u.appA)}</button></span>`;
+
+function render(lang) {
+  const u = UI[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => { el.textContent = u[el.dataset.t]; });
+  document.querySelectorAll(".langs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+
+  const last = STOPS[STOPS.length - 1].dest;
+  const way = STOPS.slice(0, -1).map(s => s.dest).join("|");
+  const all = document.getElementById("allroute");
+  all.href = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(last) + "&waypoints=" + encodeURIComponent(way) + "&travelmode=walking";
+  all.innerHTML = ICON_ROUTE + esc(u.all);
+  const note = document.getElementById("allnote");
+  note.textContent = u.note_apple;
+  note.hidden = APP !== "apple";
+
+  const chip = c => c.closed
+    ? `<span class="chip">${esc(u.closed)} ${esc(DAYS[c.closed][lang])}</span>`
+    : `<span class="chip${c.free ? " free" : ""}">${esc(c.t[lang])}</span>`;
+
+  document.getElementById("road").innerHTML = STOPS.map(s => `
+    <li class="stop">
+      <div class="mile"><small>${esc(u.mile)}</small><strong>${s.mile}</strong></div>
+      <div>
+        <h3>${esc(s.name[lang])}</h3>
+        <p>${esc(s.text[lang])}</p>
+        <div class="chips">${s.chips.map(chip).join("")}</div>
+        ${s.tip ? `<p class="tip">${esc(s.tip[lang])}</p>` : ""}
+        <div class="actions">
+          <span class="routegroup">
+            <a class="btn primary" href="${routeUrl(s.dest)}" target="_blank" rel="noopener">${ICON_ROUTE}${esc(u.route)}</a>
+            ${appPicker(u)}
+          </span>
+          <a class="btn ghost" href="${wiki(lang, s.wiki[lang])}" target="_blank" rel="noopener">${ICON_BOOK}${esc(u.more)}</a>
+        </div>
+      </div>
+    </li>`).join("");
+
+  document.getElementById("food").innerHTML = FOOD.map(f => `
+    <div class="place">
+      <div><span class="kind">${esc(u[f.kind])}</span><h3>${esc(f.name)}</h3></div>
+      <div class="addr">${esc(f.addr)}</div>
+      <p>${esc(f.t[lang])}</p>
+      <div class="meta">
+        <span>${f.closed ? esc(u.closed) + " " + esc(DAYS[f.closed][lang]) : esc(u.always)}</span>
+        <span class="tel">${esc(f.tel)}</span>
+        <a href="${search(f.name + ", " + f.addr + ", Roma")}" target="_blank" rel="noopener">${esc(u.map)} ↗</a>
+      </div>
+    </div>`).join("");
+
+  try { localStorage.setItem("appia-lang", lang); } catch (e) {}
+}
+
+let start = "it";
+try {
+  const saved = localStorage.getItem("appia-lang");
+  if (saved && UI[saved]) start = saved;
+  else {
+    const nav = (navigator.language || "it").slice(0, 2);
+    if (UI[nav]) start = nav;
+  }
+} catch (e) {}
+document.querySelectorAll(".langs button").forEach(b => b.addEventListener("click", () => render(b.dataset.lang)));
+render(start);
+document.getElementById("road").addEventListener("click", e => {
+  const b = e.target.closest("[data-app]");
+  if (!b) return;
+  APP = b.dataset.app;
+  try { localStorage.setItem("appia-app", APP); } catch (err) {}
+  render(document.documentElement.lang || "it");
+});
+
+/* Modalità chiara / scura */
+const MODE_LABEL = {
+  it: ["Passa alla modalità scura", "Passa alla modalità chiara"],
+  en: ["Switch to dark mode", "Switch to light mode"],
+  fr: ["Passer en mode sombre", "Passer en mode clair"],
+  de: ["Zum dunklen Modus wechseln", "Zum hellen Modus wechseln"]
+};
+const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const modeBtn = document.getElementById("mode");
+function setMode(m) {
+  if (m === "dark") document.documentElement.setAttribute("data-mode", "dark");
+  else document.documentElement.removeAttribute("data-mode");
+  const dark = m === "dark";
+  modeBtn.innerHTML = dark ? SUN : MOON;
+  const lang = document.documentElement.lang || "it";
+  modeBtn.setAttribute("aria-label", (MODE_LABEL[lang] || MODE_LABEL.it)[dark ? 1 : 0]);
+  try { localStorage.setItem("appia-mode", m); } catch (e) {}
+}
+let mode = "light";
+try { if (localStorage.getItem("appia-mode") === "dark") mode = "dark"; } catch (e) {}
+setMode(mode);
+modeBtn.addEventListener("click", () => {
+  mode = mode === "dark" ? "light" : "dark";
+  setMode(mode);
+});
+document.querySelectorAll(".langs button").forEach(b => b.addEventListener("click", () => setMode(mode)));
+
+/* Il pulsante sparisce scorrendo in giù e torna scorrendo in su */
+let lastY = window.scrollY;
+let ticking = false;
+window.addEventListener("scroll", () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const y = window.scrollY;
+    if (y > lastY + 4 && y > 60) modeBtn.classList.add("away");
+    else if (y < lastY - 4 || y <= 60) modeBtn.classList.remove("away");
+    lastY = y;
+    ticking = false;
+  });
+}, { passive: true });
+</script>
+
+</html>
