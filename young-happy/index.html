@@ -60,6 +60,12 @@ h1 { font-family: var(--display); font-weight: 400; font-size: clamp(42px, 11vw,
 :root[data-mode="dark"] .hero svg { filter: brightness(.88); }
 .hero figcaption { position: absolute; left: 12px; bottom: 12px; font: 600 15px var(--body); color: #1E2225; background: rgba(255,255,255,.88); border-radius: 999px; padding: 6px 14px; }
 .tabs button:disabled { opacity: .55; cursor: not-allowed; }
+.tabs button { position: relative; }
+.tabs button.conic { padding-right: 72px; }
+.tabic { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; color: var(--ochre); }
+.tabic svg { display: block; width: 100%; height: 100%; }
+.tabs button[aria-pressed="true"] .tabic { color: var(--accent-ink); }
+@media (max-width: 560px) { .tabs button.conic { padding: 12px 52px 12px 12px; } .tabic { right: 9px; width: 38px; height: 38px; } .tabs .conic small { font-size: 11px; letter-spacing: .05em; } .conic .nb { white-space: nowrap; margin-right: -44px; } .tabs button.near.conic { padding-bottom: 14px; } .near .tabic { top: auto; bottom: 8px; transform: none; } }
 .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 28px 0 10px; }
 .tabs button { text-align: left; display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; min-height: 76px; font: inherit; }
 .tabs small { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
@@ -223,7 +229,7 @@ const UI = {
         foot: "Horaires et prix indicatifs : vérifiez-les sur les sites officiels.", from_host: "De l'hébergement à la première étape", trial: "Essai gratuit · version pour", by: "Un guide offert par" },
   de: { rain_k: "Und wenn es regnet?", rain_sub: "Überdachte Alternativen nahe der heutigen Route.", eat_k: "Essen und Trinken am Abend", eat_sub: "Empfohlene Restaurants und Bars nahe der letzten Station.", start: "Start", end: "Ziel", near: "Am nächsten bei Ihnen", nearline: "Der Rundgang, der Ihrer Unterkunft am nächsten liegt", gs: "Google Maps", as: "Karten (iOS)", appk: "Fußweg mit", allk: "Ganze Route: nur mit Google Maps", allnote: "Karten (iOS) öffnet nicht mehrere Stationen auf einmal. Für jede einzelne Station unten wählen Sie Ihre App.", tickets: "Tickets auf der offiziellen Seite", official: "Offizielle Seite", stay_k: "Ihre Unterkunft", back: "Zurück zur Unterkunft", book: "Nächsten Aufenthalt buchen", write: "Auf WhatsApp schreiben", call: "Telefon", review: "Bewertung schreiben", title: "Paris zu Fuß", lead: "Vier Tage, um das Beste von Paris zu Fuß zu sehen. Jede Station bietet den Weg von Ihrem Standort und eine Seite zum Weiterlesen.",
         route: "Route", more: "Mehr erfahren", all: "Ganze Route zu Fuß", food: "Empfohlene Pause", closed: "Geschlossen am", g: "Google Maps", a: "Karten",
-        it_k: "Tag", tip_k: "Ein Tipp", locked: "In Partnerunterkünften", locked_note: "Dies ist eine Vorschau: Die anderen Routen gibt es in Unterkünften, die Tappa anbieten.", picks_k: "Empfohlen von", picks_sub: "Die Adressen, die die Unterkunft ihren Gästen empfiehlt.", demo: "Beispiel · fiktive Unterkunft", partner: "Partner", tip: "Bequeme Schuhe und eine Trinkflasche: Die grünen gusseisernen Wallace-Brunnen geben überall kostenloses Trinkwasser.",
+        it_k: "Tag", tip_k: "Ein Tipp", locked: "Bei Partnern", locked_note: "Dies ist eine Vorschau: Die anderen Routen gibt es in Unterkünften, die Tappa anbieten.", picks_k: "Empfohlen von", picks_sub: "Die Adressen, die die Unterkunft ihren Gästen empfiehlt.", demo: "Beispiel · fiktive Unterkunft", partner: "Partner", tip: "Bequeme Schuhe und eine Trinkflasche: Die grünen gusseisernen Wallace-Brunnen geben überall kostenloses Trinkwasser.",
         foot: "Öffnungszeiten und Preise sind Richtwerte: Bitte auf den offiziellen Seiten prüfen.", from_host: "Von der Unterkunft zur ersten Station", trial: "Kostenlose Probe · Version für", by: "Ein Rundgang von" }
 };
 const DOW = { tue: { it: "martedì", en: "Tuesday", fr: "mardi", de: "Dienstag" }, mon: { it: "lunedì", en: "Monday", fr: "lundi", de: "Montag" }, wed: { it: "mercoledì", en: "Wednesday", fr: "mercredi", de: "Mittwoch" }, sun: { it: "domenica", en: "Sunday", fr: "dimanche", de: "Sonntag" } };
@@ -249,6 +255,9 @@ const routeUrl = (d, o, app) => (app || APP) === "apple"
   : "https://www.google.com/maps/dir/?api=1" + (o ? "&origin=" + encodeURIComponent(o) : "") + "&destination=" + encodeURIComponent(d) + "&travelmode=walking";
 const wiki = q => "https://" + LANG + ".wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(q) + "&go=Go";
 const mapSearch = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+
+const tabClass = (near, ico) => { const c = [near && "near", ico && "conic"].filter(Boolean).join(" "); return c ? ` class="${c}"` : ""; };
+const tabIcona = ico => ico ? `<i class="tabic">${ico}</i>` : "";
 
 function render() {
   const u = UI[LANG], I = DATA[IT];
@@ -279,8 +288,8 @@ function render() {
     document.getElementById("tiptext").textContent = u.tip;
   }
   document.getElementById("tabs").innerHTML = DATA.map((d, i) =>
-    `<button type="button" data-it="${i}" aria-pressed="${i === IT}"${i === NEAR ? ' class="near"' : ""}>${i === NEAR ? `<em class="nb">${ICON_MAP}${esc(u.near)}</em>` : ""}<small>${esc(u.it_k)} ${i + 1}</small><span>${esc(d.nome[LANG])}</span></button>`).join("");
-  document.getElementById("tabs").insertAdjacentHTML("beforeend", BLOCCATI.map(n => `<button type="button" disabled><small>${esc(u.locked)}</small><span>${esc(n[LANG])}</span></button>`).join(""));
+    `<button type="button" data-it="${i}" aria-pressed="${i === IT}"${tabClass(i === NEAR, d.icona)}>${tabIcona(d.icona)}${i === NEAR ? `<em class="nb">${ICON_MAP}${esc(u.near)}</em>` : ""}<small>${esc(u.it_k)} ${i + 1}</small><span>${esc(d.nome[LANG])}</span></button>`).join("");
+  document.getElementById("tabs").insertAdjacentHTML("beforeend", BLOCCATI.map(b => `<button type="button" disabled${tabClass(false, b.icona)}>${tabIcona(b.icona)}<small>${esc(u.locked)}</small><span>${esc(b.nome[LANG])}</span></button>`).join(""));
   const ln = document.getElementById("lockednote"); ln.hidden = !BLOCCATI.length; ln.textContent = u.locked_note;
   const nl = document.getElementById("nearline"); nl.hidden = IT !== NEAR; nl.innerHTML = ICON_MAP + esc(u.nearline);
   document.getElementById("hero").innerHTML = ILL[IT] + `<figcaption>${esc(ILL_NOME[IT])}</figcaption>`;
