@@ -425,7 +425,10 @@ function render() {
   if (miei.length) picks.innerHTML = `<h3><span class="ico">${ICONE.cibo}</span>${esc(u.picks_k)} ${esc(HOSTS[HOST].name)}</h3><p>${esc(u.picks_sub)}</p>` + miei.map(x => scheda(x)).join("");
   const ios = /iPhone|iPad|Macintosh/.test(navigator.userAgent);
   const q = encodeURIComponent(WATER.q);
-  const vicino = APP === "apple" ? "https://maps.apple.com/?q=" + q : "https://www.google.com/maps/search/?api=1&query=" + q;
+  // la ricerca è ancorata alla città della guida: senza, le mappe cercano nell'ultima zona vista (es. Roma aprendo la guida di Madrid)
+  const ll = METEO ? METEO.lat + "," + METEO.lon : "";
+  const vicino = APP === "apple" ? "https://maps.apple.com/?q=" + q + (ll ? "&sll=" + ll + "&z=14" : "")
+    : (ll ? "https://www.google.com/maps/search/" + q + "/@" + ll + ",14z" : "https://www.google.com/maps/search/?api=1&query=" + q);
   document.getElementById("water").innerHTML = `<a class="btn w" href="${vicino}" target="_blank" rel="noopener">${ICON_DROP}${esc(WATER.near[LANG])}</a>` +
     (WATER.app ? `<a class="btn g" href="${ios ? WATER.app.ios : WATER.app.android}" target="_blank" rel="noopener">${ICON_MAP}${esc(WATER.app.label[LANG])}</a>` : "");
   // il numero di tappe è quello dell'itinerario aperto: lo diciamo, per non farlo sembrare il totale della guida
