@@ -430,7 +430,8 @@ function render() {
   const vicino = APP === "apple" ? "https://maps.apple.com/?q=" + q : "https://www.google.com/maps/search/?api=1&query=" + q;
   document.getElementById("water").innerHTML = `<a class="btn w" href="${vicino}" target="_blank" rel="noopener">${ICON_DROP}${esc(WATER.near[LANG])}</a>` +
     (WATER.app ? `<a class="btn g" href="${ios ? WATER.app.ios : WATER.app.android}" target="_blank" rel="noopener">${ICON_MAP}${esc(WATER.app.label[LANG])}</a>` : "");
-  const voci = [["stops", ICON_WALK, I.tappe.length + " " + u.s_tappe, u.s_tappe_sub]];
+  // il numero di tappe è quello dell'itinerario aperto: lo diciamo, per non farlo sembrare il totale della guida
+  const voci = [["stops", ICON_WALK, (I.trek ? u.trek_k : u.it_k + " " + (IT + 1)) + " · " + I.tappe.length + " " + u.s_tappe, u.s_tappe_sub]];
   if (I.fine) voci.push(["eat", ICONE.cibo, u.s_eat, I.fine.length + " " + u.s_eat_sub]);
   if (I.pioggia) voci.push(["rain", ICONE.pioggia, u.s_rain, I.pioggia.length + " " + u.s_rain_sub]);
   if (!document.getElementById("picks").hidden) voci.push(["picks", ICON_STAR, u.s_picks, u.s_picks_sub]);
