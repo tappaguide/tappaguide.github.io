@@ -434,9 +434,10 @@ function render() {
   bt.hidden = bs.hidden = !B;
   if (B) {
     bt.innerHTML = `<div class="callout"><span class="cico">${ICON_BIKE}</span><div><b>${esc(B.top_t[LANG])}</b><span>${esc(B.top_d[LANG])}</span></div></div><button type="button" class="btn g" data-salta="bici" style="cursor:pointer">${esc(B.top_btn[LANG])} ↓</button>`;
-    bs.innerHTML = `<h3><span class="ico">${ICON_BIKE}</span>${esc(B.sez_t[LANG])}</h3><p>${esc(B.sez_d[LANG])}</p>` + B.noleggi.map(x => scheda(x)).join("") +
+    bs.innerHTML = `<h3><span class="ico">${ICON_BIKE}</span>${esc(B.sez_t[LANG])}</h3>` +
       `<div class="card"><b>${esc(B.prosegui_t[LANG])}</b><p>${esc(B.prosegui_d[LANG])}</p><ul style="margin:0;padding-left:20px;font-size:16px;display:grid;gap:6px">${B.mete.map(m => `<li><b style="font-size:inherit">${esc(m.nome[LANG])}</b>: ${esc(m.testo[LANG])}</li>`).join("")}</ul>
-      <div class="row"><a class="btn p" href="${routeUrl(B.arrivo, B.partenza)}" target="_blank" rel="noopener">${ICON_ROUTE}${esc(B.prosegui_btn[LANG])}</a></div></div>`;
+      <div class="row"><a class="btn p" href="${routeUrl(B.arrivo, B.partenza)}" target="_blank" rel="noopener">${ICON_ROUTE}${esc(B.prosegui_btn[LANG])}</a></div></div>` +
+      `<p>${esc(B.sez_d[LANG])}</p>` + B.noleggi.map(x => scheda(x)).join("");
   }
   const rit = document.getElementById("ritorno"); rit.hidden = !HOST;
   // dalla posizione del telefono: a fine itinerario l'ospite è all'ultima tappa, o più avanti se ha proseguito
