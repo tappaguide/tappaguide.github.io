@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tappa Roma - Vinili</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+/* VOICE: guida Tappa, calda e pratica, come un amico che conosce i negozi.
+   IDEA: la puntina che scorre sul solco: le tappe sono tracce di un lato A.
+   PICTURE: un vinile che esce dalla busta verde Tappa, con la linea del percorso.
+   COLOUR and TYPE: verde Tappa, ocra per le etichette, Marcellus + IBM Plex.
+   LAYOUT: colonna stretta, schede itinerario, tappe lungo una linea. */
+:root{color-scheme:light dark;
+  --bg:light-dark(#FFFFFF,#121514);--surface:light-dark(#F4F5F1,#1B1F1D);--ink:light-dark(#1E2225,#E6E8E3);
+  --muted:light-dark(#545C58,#A3ABA6);--line:light-dark(#D3D7CF,#323835);--accent:light-dark(#2D5843,#82B898);
+  --accent-ink:light-dark(#F2F6F1,#0E1913);--ochre:light-dark(#8F6219,#D7AC62);--soft:light-dark(#E3ECE6,#22302A);
+  --vinyl:light-dark(#1B1D1C,#0A0B0B);
+  --display:"Marcellus",Georgia,serif;--body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--body);overflow-x:clip}
+.wrap{max-width:720px;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 64px max(16px,env(safe-area-inset-left))}
+button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.logo{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:400 20px var(--display)}
+.seg{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.seg button{font:600 15px var(--body);color:var(--muted);background:none;border:0;border-radius:999px;min-height:40px;padding:0 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.hero{margin:20px 0 0;border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:var(--soft)}
+.hero svg{display:block;width:100%;height:100%}
+@media(prefers-reduced-motion:no-preference){.spin{transform-origin:330px 190px;animation:spin 9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}}
+h1{font:400 clamp(40px,10vw,60px)/1.02 var(--display);margin:24px 0 10px;text-wrap:balance}
+.lead{margin:0;color:var(--muted);font-size:18px;max-width:56ch}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:28px 0 10px}
+.tabs button{text-align:left;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;min-height:76px;font:inherit}
+.tabs small{font-size:13px;color:var(--muted)}
+.tabs span{font-size:16px;font-weight:600;line-height:1.25}
+.tabs button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tabs button[aria-pressed=true] small{color:var(--accent-ink);opacity:.85}
+.ihead{margin:26px 0 18px;padding:22px;border-radius:22px;border:2px solid var(--accent);background:var(--surface);display:grid;gap:10px}
+.ihead h2{margin:0;font:400 34px/1.1 var(--display)}
+.ihead p{margin:0;color:var(--muted);font-size:16px}
+.info{margin:0 0 20px;padding:20px 22px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}
+.info dl{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px 18px}
+.info dt{font-weight:600;font-size:15px}.info dd{margin:0;font-size:16px}
+@media(max-width:480px){.info dl{grid-template-columns:minmax(0,1fr);gap:2px}.info dd{margin-bottom:10px}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:2px solid var(--accent);font:600 16px var(--body);text-decoration:none;color:var(--accent);background:transparent}
+.btn.p{background:var(--accent);color:var(--accent-ink)}
+.btn svg{width:20px;height:20px;flex:none}
+.all{display:flex;margin-bottom:8px}.all .btn{width:100%}
+.line{list-style:none;margin:0;padding:0;position:relative}
+.line::before{content:"";position:absolute;left:22px;top:24px;bottom:24px;width:3px;border-radius:2px;background:repeating-linear-gradient(var(--accent) 0 6px,transparent 6px 11px);opacity:.5}
+.stop{display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding-block:16px 22px}
+.disc{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,var(--ochre) 0 9px,var(--vinyl) 9.5px 15px,#3a3d3b 15.5px 16px,var(--vinyl) 16.5px 20px,#3a3d3b 20.5px 21px,var(--vinyl) 21.5px);color:#fff;display:grid;place-items:center;font:600 13px var(--mono);position:relative;z-index:1}
+.stop h3{font:400 26px/1.15 var(--display);margin:2px 0 6px}
+.genre{font-size:14px;font-weight:600;color:var(--ochre);margin:0 0 6px}
+.stop p{margin:0 0 10px;font-size:17px;max-width:60ch}
+.addr{font-size:15px;color:var(--muted);margin-bottom:8px}
+.hours{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px;margin-bottom:12px}
+.st{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.st.on{background:var(--accent);color:var(--accent-ink)}.st.off{border:1px solid var(--muted);color:var(--muted)}.st.unk{border:1px dashed var(--ochre);color:var(--ochre)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acts .web{grid-column:1/-1}
+.box{margin-top:28px;padding:22px;border-radius:20px;display:grid;gap:14px;background:var(--surface);border:1.5px solid var(--line)}
+.box h3{margin:0;font:400 28px/1.15 var(--display)}
+.box>p{margin:0;color:var(--muted);font-size:16px}
+.card{background:var(--bg);border-radius:14px;padding:16px;display:grid;gap:6px;border:1px solid var(--line)}
+.card .k{font-size:13px;color:var(--muted)}.card b{font-size:19px;line-height:1.25}.card p{margin:0;font-size:16px}
+.card .btn{margin-top:6px;min-height:44px}
+.sun{border-color:var(--ochre)}
+.tip{margin-top:28px;padding:16px 18px;border-left:4px solid var(--ochre);background:var(--surface);font-size:16px}
+.tip b{display:block;margin-bottom:4px}
+footer{margin-top:28px;font-size:14px;color:var(--muted);display:grid;gap:6px}
+footer b{color:var(--ink)}
+@media(max-width:560px){.tabs{grid-template-columns:minmax(0,1fr)}.tabs button{min-height:60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="logo" aria-hidden="true">T</span><span>Tappa</span></div>
+    <div class="seg" role="group" aria-label="Lingua / Language">
+      <button type="button" data-lang="it">IT</button><button type="button" data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <figure class="hero" aria-hidden="true">
+    <svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="gl" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#4a4f4c"/><stop offset=".5" stop-color="#1b1d1c"/><stop offset="1" stop-color="#0d0e0e"/></radialGradient>
+        <linearGradient id="sl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B6E55"/><stop offset="1" stop-color="#22463A"/></linearGradient>
+      </defs>
+      <rect width="640" height="360" fill="#E3ECE6"/>
+      <path d="M0 300 C120 270 220 330 340 300 S560 260 640 290 V360 H0Z" fill="#D3DED6"/>
+      <ellipse cx="330" cy="330" rx="230" ry="16" fill="#1e2225" opacity=".12"/>
+      <g class="spin">
+        <circle cx="330" cy="190" r="140" fill="url(#gl)"/>
+        <g fill="none" stroke="#2c2f2d" stroke-width="1.2">
+          <circle cx="330" cy="190" r="128"/><circle cx="330" cy="190" r="116"/><circle cx="330" cy="190" r="104"/><circle cx="330" cy="190" r="92"/><circle cx="330" cy="190" r="80"/><circle cx="330" cy="190" r="68"/>
+        </g>
+        <path d="M250 110 A115 115 0 0 1 400 95" stroke="#fff" stroke-opacity=".18" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <circle cx="330" cy="190" r="46" fill="#C99A45"/>
+        <path d="M300 190 a30 30 0 0 1 60 0" fill="none" stroke="#8F6219" stroke-width="3"/>
+        <circle cx="330" cy="190" r="5" fill="#E3ECE6"/>
+      </g>
+      <rect x="60" y="60" width="200" height="260" rx="6" fill="url(#sl)"/>
+      <rect x="60" y="60" width="200" height="260" rx="6" fill="none" stroke="#fff" stroke-opacity=".25"/>
+      <text x="82" y="112" font-family="Marcellus,Georgia,serif" font-size="40" fill="#F2F6F1">Roma</text>
+      <text x="84" y="140" font-family="IBM Plex Sans,sans-serif" font-size="15" fill="#C9D9CF">lato A · 3 percorsi</text>
+      <path d="M92 290 C120 240 160 270 180 220 S230 200 236 168" fill="none" stroke="#F2F6F1" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round"/>
+      <g fill="#C99A45" stroke="#F2F6F1" stroke-width="2"><circle cx="92" cy="290" r="7"/><circle cx="180" cy="221" r="7"/><circle cx="236" cy="168" r="7"/></g>
+      <g transform="translate(520 70) rotate(28)"><rect x="-6" y="0" width="12" height="150" rx="6" fill="#545C58"/><rect x="-14" y="140" width="28" height="22" rx="4" fill="#1E2225"/><circle r="22" fill="#2D5843"/></g>
+    </svg>
+  </figure>
+
+  <h1 data-t="title"></h1>
+  <p class="lead" data-t="lead"></p>
+
+  <div class="tabs" id="tabs" role="group"></div>
+  <div class="ihead"><h2 id="iname"></h2><p id="isub"></p></div>
+  <section class="info"><dl id="info"></dl></section>
+  <div class="all"><a class="btn p" id="allroute" target="_blank" rel="noopener"></a></div>
+  <ol class="line" id="stops"></ol>
+
+  <section class="box sun" id="sunday"></section>
+  <section class="box" id="extra"></section>
+
+  <div class="tip"><b data-t="tip_k"></b><span data-t="tip"></span></div>
+
+  <footer>
+    <span><b>© 2026 Tappa · tappaguide.it</b>. <span data-t="rights"></span></span>
+    <span data-t="legal"></span>
+    <span data-t="src"></span>
+  </footer>
+</div>
+
+<script>
+{
+const T={
+ it:{title:"Roma a 33 giri",lead:"Tre passeggiate tra i negozi di dischi indipendenti di Roma: storici, specializzati e minuscoli. Ogni tappa ha il percorso a piedi, gli orari e lo stato aperto o chiuso in questo momento.",
+  dur:"Durata",when:"Quando",watch:"Attenzione",all:"Tutto il percorso su Google Maps",gm:"Google Maps",am:"Mappe",web:"Sito del negozio",open:"Aperto ora",closed:"Chiuso ora",unk:"Orari da verificare",
+  sunT:"La domenica: Porta Portese",sunP:"Di domenica quasi tutti i negozi sono chiusi. In compenso c'è il mercato delle pulci più famoso di Roma.",
+  exT:"Fuori percorso",exP:"Altri tre indirizzi che valgono il viaggio, anche se non stanno lungo i giri a piedi.",
+  tip_k:"Prima di partire",tip:"Molti negozi fanno pausa pranzo e diversi sono chiusi il lunedì. Gli orari sono stati raccolti a novembre 2026: per gli acquisti importanti conviene una telefonata. Portate una borsa rigida, i vinili soffrono le pieghe.",
+  rights:"Tutti i diritti riservati.",legal:"Testi, percorsi, selezione dei luoghi e grafica sono opera originale protetta dal diritto d'autore. Il nome Tappa e il suo logo sono segni distintivi di tappaguide.it. Vietata la riproduzione, anche parziale, senza autorizzazione scritta.",
+  src:"Informazioni da fonti pubbliche (Turismo Roma, ZERO, siti dei negozi). Tappa non ha rapporti commerciali con i negozi citati."},
+ en:{title:"Rome at 33 rpm",lead:"Three walks through Rome's independent record shops: historic, specialist and tiny. Each stop has walking directions, opening hours and whether it is open right now.",
+  dur:"Duration",when:"When",watch:"Good to know",all:"Whole route on Google Maps",gm:"Google Maps",am:"Apple Maps",web:"Shop website",open:"Open now",closed:"Closed now",unk:"Check hours",
+  sunT:"On Sunday: Porta Portese",sunP:"On Sundays almost every shop is closed. Instead, Rome's most famous flea market is on.",
+  exT:"Off the route",exP:"Three more addresses worth the trip, even if they are not on the walks.",
+  tip_k:"Before you go",tip:"Many shops close for lunch and several are closed on Mondays. Hours were collected in November 2026: call ahead for important purchases. Bring a stiff bag, records hate being bent.",
+  rights:"All rights reserved.",legal:"Texts, routes, choice of places and graphics are original work protected by copyright. The Tappa name and logo are distinctive signs of tappaguide.it. No reproduction, even partial, without written permission.",
+  src:"Information from public sources (Turismo Roma, ZERO, shop websites). Tappa has no commercial ties with the shops listed."}};
+
+const RAD=["","10:30-14,16-20","10:30-14,16-20","10:30-14,16-20","10:30-14,16-20","10:30-14,16-20","10:30-20"];
+const RADT={it:"Lun-ven 10:30-14 e 16-20, sab 10:30-20, dom chiuso",en:"Mon-Fri 10:30-14 and 16-20, Sat 10:30-20, Sun closed"};
+
+const DATA=[
+{id:"monti",nome:{it:"Monti, Esquilino e San Giovanni",en:"Monti, Esquilino and San Giovanni"},
+ sotto:{it:"≈ 3,5 km · da Via del Boschetto al Laterano",en:"≈ 3.5 km · from Via del Boschetto to the Lateran"},
+ info:{dur:{it:"3-4 ore con le soste",en:"3-4 hours with stops"},when:{it:"Da martedì a sabato, partendo verso le 11.",en:"Tuesday to Saturday, starting around 11 am."},
+  watch:{it:"Soul Food chiude dalle 13:30 alle 15:30 e il lunedì. Millerecords il lunedì apre solo alle 16.",en:"Soul Food closes 13:30-15:30 and on Mondays. On Mondays Millerecords opens only at 4 pm."}},
+ tappe:[
+  {n:"Radiation Records Monti",a:"Via del Boschetto 94, Roma",g:{it:"Indie, garage, punk, soul · nuovo e usato",en:"Indie, garage, punk, soul · new and used"},
+   t:{it:"La sede di Monti del negozio indipendente più amato della città: piccola ma curatissima, con prezzi onesti sul nuovo e sull'usato.",en:"The Monti branch of the city's best-loved independent shop: small but carefully stocked, with fair prices on new and used."},
+   h:RAD,ht:RADT,w:"https://shop.radiationrecords.net"},
+  {n:"I Want To Believe Records",a:"Via dei Quattro Cantoni 10a, Roma",g:{it:"Disco, electro, dance · usato",en:"Disco, electro, dance · used"},
+   t:{it:"Bottega di vinili usati a due passi da Santa Maria Maggiore, per chi cerca dischi da ballare.",en:"A used-vinyl shop a short walk from Santa Maria Maggiore, for anyone hunting records to dance to."},h:null,ht:null,w:null},
+  {n:"Discoteca Laziale",a:"Via Giovanni Giolitti 263, Roma",g:{it:"Tutti i generi · nuovo",en:"Every genre · new"},
+   t:{it:"Un'istituzione dal 1967, vicino a Termini: scaffali enormi dove è difficile non trovare quello che si cerca.",en:"An institution since 1967, near Termini: huge shelves where it is hard not to find what you want."},
+   h:["","9-19:30","9-19:30","9-19:30","9-19:30","9-19:30","9-19:30"],ht:{it:"Lun-sab 9-19:30, dom chiuso",en:"Mon-Sat 9-19:30, Sun closed"},w:"https://www.discotecalaziale.com"},
+  {n:"Millerecords",a:"Via Merulana 91, Roma",g:{it:"Jazz, classica, rock · 33, 45 e 78 giri",en:"Jazz, classical, rock · 33, 45 and 78 rpm"},
+   t:{it:"Negozio storico nato negli anni Sessanta: vinili nuovi e usati, rarità e libri di musica fuori catalogo.",en:"A historic shop founded in the 1960s: new and used records, rarities and out-of-print music books."},
+   h:["","16-19:30","11-19:30","11-19:30","11-19:30","11-19:30","11-19:30"],ht:{it:"Lun 16-19:30, mar-sab 11-19:30, dom chiuso",en:"Mon 16-19:30, Tue-Sat 11-19:30, Sun closed"},w:"https://www.millerecords.it"},
+  {n:"Soul Food",a:"Via di San Giovanni in Laterano 192, Roma",g:{it:"Garage, punk, psych, rock'n'roll",en:"Garage, punk, psych, rock'n'roll"},
+   t:{it:"Aperto nel 2002 da Pierluigi e Chicca, gli stessi dell'etichetta Hate Records. Piccolo, pieno zeppo, a pochi passi dal Colosseo.",en:"Opened in 2002 by Pierluigi and Chicca, the people behind the Hate Records label. Small, packed, a few steps from the Colosseum."},
+   h:["","","10:30-13:30,15:30-19:30","10:30-13:30,15:30-19:30","10:30-13:30,15:30-19:30","10:30-13:30,15:30-19:30","10:30-13:30,15:30-19:30"],ht:{it:"Mar-sab 10:30-13:30 e 15:30-19:30, dom e lun chiuso",en:"Tue-Sat 10:30-13:30 and 15:30-19:30, Sun and Mon closed"},w:"https://www.haterecords.com"}]},
+{id:"est",nome:{it:"San Lorenzo e Pigneto",en:"San Lorenzo and Pigneto"},
+ sotto:{it:"≈ 3 km · da Via dei Marsi a Via Romanello da Forlì",en:"≈ 3 km · from Via dei Marsi to Via Romanello da Forlì"},
+ info:{dur:{it:"Circa 3 ore",en:"About 3 hours"},when:{it:"Il pomeriggio, da lunedì a sabato: Ultrasuoni apre alle 14. Al Pigneto la sera continua con i live club.",en:"Afternoons, Monday to Saturday: Ultrasuoni opens at 2 pm. In Pigneto the evening carries on in the live clubs."},
+  watch:{it:"Tra San Lorenzo e il Pigneto si passa sotto Porta Maggiore: tratto trafficato, meglio i marciapiedi di Via Casilina Vecchia.",en:"Between San Lorenzo and Pigneto you pass under Porta Maggiore: busy traffic, keep to the pavements."}},
+ tappe:[
+  {n:"Ultrasuoni Records",a:"Via dei Marsi 24, Roma",g:{it:"Techno, house, electro, italo disco",en:"Techno, house, electro, Italo disco"},
+   t:{it:"Dal 2007 il negozio dei dj romani: elettronica italiana e internazionale, soprattutto nuove uscite.",en:"Since 2007 the shop of Rome's DJs: Italian and international electronic music, mostly new releases."},
+   h:["","14-20","14-20","14-20","14-20","14-20","14-20"],ht:{it:"Lun-sab 14-20, dom chiuso",en:"Mon-Sat 14-20, Sun closed"},w:"https://www.ultrasuonirecords.com"},
+  {n:"Transmission",a:"Via dei Salentini 27, Roma",g:{it:"Tutti i generi · soprattutto usato e rarità",en:"Every genre · mostly used and rarities"},
+   t:{it:"Un classico di San Lorenzo con una collezione immensa: il posto giusto per scovare pezzi rari, ma raramente sotto i 10-15 €.",en:"A San Lorenzo classic with a vast stock: the place for rare finds, though seldom under €10-15."},h:null,ht:null,w:null},
+  {n:"Blutopia",a:"Via del Pigneto 116, Roma",g:{it:"Jazz, improvvisazione, musiche di ricerca",en:"Jazz, improvised and experimental music"},
+   t:{it:"Più che un negozio, un punto d'incontro: condivide lo spazio con Satellite (vinili d'epoca e libri) e organizza concerti.",en:"More a meeting place than a shop: it shares its space with Satellite (vintage records and books) and hosts concerts."},
+   h:["","15:30-20","11-20","11-20","11-20","11-20","11-20"],ht:{it:"Lun 15:30-20, mar-sab 11-20, dom chiuso",en:"Mon 15:30-20, Tue-Sat 11-20, Sun closed"},w:null},
+  {n:"Radiation Records Pigneto",a:"Via Romanello da Forlì 14, Roma",g:{it:"Tutto, dal garage punk alla library music",en:"Everything, from garage punk to library music"},
+   t:{it:"La casa madre: migliaia di vinili nuovi e usati, libri, riviste e magliette. Regge il confronto con i negozi di Londra e Berlino.",en:"The flagship: thousands of new and used records, books, magazines and T-shirts. It stands comparison with shops in London and Berlin."},
+   h:RAD,ht:RADT,w:"https://shop.radiationrecords.net"}]},
+{id:"tras",nome:{it:"Trastevere e Testaccio",en:"Trastevere and Testaccio"},
+ sotto:{it:"≈ 2,5 km · da Via Luciano Manara a Via Vanvitelli",en:"≈ 2.5 km · from Via Luciano Manara to Via Vanvitelli"},
+ info:{dur:{it:"2-3 ore",en:"2-3 hours"},when:{it:"Da martedì a sabato, dal primo pomeriggio: Groove Lab apre alle 14.",en:"Tuesday to Saturday, from early afternoon: Groove Lab opens at 2 pm."},
+  watch:{it:"Le prime tre tappe sono a meno di 200 metri l'una dall'altra. Per Testaccio si attraversa il Tevere su Ponte Sublicio.",en:"The first three stops are under 200 metres apart. To reach Testaccio you cross the Tiber on Ponte Sublicio."}},
+ tappe:[
+  {n:"Il Mangiadischi",a:"Via Luciano Manara 22, Roma",g:{it:"Vinili e birre",en:"Records and beer"},
+   t:{it:"Minuscolo e coraggioso: si sfogliano dischi con una birra artigianale in mano.",en:"Tiny and bold: you flick through records with a craft beer in hand."},
+   h:["","11-20","11-20","11-20","11-20","11-20","11-20"],ht:{it:"Lun-sab 11-20, dom chiuso",en:"Mon-Sat 11-20, Sun closed"},w:null},
+  {n:"Radiation Records Trastevere",a:"Via di San Francesco a Ripa 168, Roma",g:{it:"Indie, punk, soul · nuovo e usato",en:"Indie, punk, soul · new and used"},
+   t:{it:"La terza sede di Radiation, aperta a fine 2023 nel cuore di Trastevere.",en:"Radiation's third branch, opened in late 2023 in the heart of Trastevere."},h:null,ht:null,w:"https://shop.radiationrecords.net"},
+  {n:"Sounds Familiar Store",a:"Via di San Francesco a Ripa 5, Roma",g:{it:"Clubbing soulful, house, disco",en:"Soulful club music, house, disco"},
+   t:{it:"Il negozio del collettivo Sounds Familiar: dischi, merch e dritte sui prossimi dj set in città.",en:"The Sounds Familiar crew's shop: records, merch and tips on the next DJ sets in town."},h:null,ht:null,w:null},
+  {n:"Groove Lab Records",a:"Via Luigi Vanvitelli 39, Roma",g:{it:"Elettronica di ogni tipo",en:"Electronic music of every kind"},
+   t:{it:"Giovane negozio indipendente di Testaccio, a due passi dal mercato e dalla piazza.",en:"A young independent shop in Testaccio, close to the market and the square."},
+   h:["","","14-20","14-20","14-20","14-20","14-20"],ht:{it:"Mar-sab 14-20, dom e lun chiuso",en:"Tue-Sat 14-20, Sun and Mon closed"},w:"https://www.groovelabrecords.com"}]}];
+
+const EXTRA=[
+ {n:"Pink Moon Records",a:"Via Antonio Pacinotti 5, Roma",k:{it:"Portuense · dai primi anni '90",en:"Portuense · since the early '90s"},t:{it:"Storico e fornitissimo, tra Trastevere e il Portuense. Mar-sab 11-19.",en:"Historic and well stocked, between Trastevere and Portuense. Tue-Sat 11-19."}},
+ {n:"Roundmidnight Dischi",a:"Via di Sant'Orsola 10, Roma",k:{it:"Oltre 25.000 titoli",en:"Over 25,000 titles"},t:{it:"Vinili, cd e cassette nuovi e usati, frutto di anni di ricerche in cantine e mercatini. Lun-sab 9-13 e 16-20.",en:"New and used vinyl, CDs and tapes gathered over years of digging. Mon-Sat 9-13 and 16-20."}},
+ {n:"Elastic Rock",a:"Viale dei Quattro Venti 237, Roma",k:{it:"Monteverde",en:"Monteverde"},t:{it:"Negozio di quartiere a Monteverde, comodo dopo il giro di Trastevere.",en:"A neighbourhood shop in Monteverde, handy after the Trastevere walk."}}];
+
+const ICO={walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6-3-3 1-5 4 3 3 1M9 12l-2 3"/></svg>',
+ pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+ web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>'};
+
+const enc=encodeURIComponent;
+const gm=a=>"https://www.google.com/maps/dir/?api=1&destination="+enc(a)+"&travelmode=walking";
+const am=a=>"https://maps.apple.com/?daddr="+enc(a)+"&dirflg=w";
+const allR=t=>"https://www.google.com/maps/dir/?api=1&origin="+enc(t[0].a)+"&destination="+enc(t[t.length-1].a)+(t.length>2?"&waypoints="+enc(t.slice(1,-1).map(x=>x.a).join("|")):"")+"&travelmode=walking";
+
+function romeNow(){
+ try{const p=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+  const g=k=>p.find(x=>x.type===k).value;const d=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"));
+  return {d,m:(+g("hour")%24)*60+ +g("minute")};}catch(e){return null}}
+const mins=s=>{const[h,m]=s.split(":");return +h*60+(+m||0)};
+function isOpen(h){const n=romeNow();if(!n||!h)return null;const day=h[n.d];if(!day)return false;
+ return day.split(",").some(r=>{const[a,b]=r.split("-");return n.m>=mins(a)&&n.m<mins(b)})}
+
+let lang="it",cur=0;
+try{const s=localStorage.getItem("tappa-lang");if(s&&T[s])lang=s}catch(e){}
+try{const i=DATA.findIndex(x=>"#"+x.id===location.hash);if(i>=0)cur=i}catch(e){}
+
+function render(){
+ const L=T[lang];document.documentElement.lang=lang;
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=L[e.dataset.t]);
+ document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+ document.getElementById("tabs").innerHTML=DATA.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===cur}"><small>${x.tappe.length} ${lang==="it"?"negozi":"shops"}</small><span>${x.nome[lang]}</span></button>`).join("");
+ const it=DATA[cur];
+ document.getElementById("iname").textContent=it.nome[lang];
+ document.getElementById("isub").textContent=it.sotto[lang];
+ document.getElementById("info").innerHTML=["dur","when","watch"].map(k=>`<dt>${L[k]}</dt><dd>${it.info[k][lang]}</dd>`).join("");
+ const ar=document.getElementById("allroute");ar.href=allR(it.tappe);ar.innerHTML=ICO.walk+L.all;
+ document.getElementById("stops").innerHTML=it.tappe.map((s,i)=>{
+  const o=isOpen(s.h);const st=s.h==null?`<span class="st unk">${L.unk}</span>`:o===null?"":`<span class="st ${o?"on":"off"}">${o?L.open:L.closed}</span>`;
+  return `<li class="stop"><div class="disc" aria-hidden="true">${String.fromCharCode(65)}${i+1}</div><div>
+   <h3>${s.n}</h3><p class="genre">${s.g[lang]}</p><p>${s.t[lang]}</p>
+   <div class="addr">${s.a.replace(", Roma","")}</div>
+   <div class="hours">${st}${s.ht?`<span>${s.ht[lang]}</span>`:""}</div>
+   <div class="acts"><a class="btn" href="${gm(s.a)}" target="_blank" rel="noopener">${ICO.pin}${L.gm}</a><a class="btn" href="${am(s.a)}" target="_blank" rel="noopener">${ICO.pin}${L.am}</a>${s.w?`<a class="btn web" href="${s.w}" target="_blank" rel="noopener">${ICO.web}${L.web}</a>`:""}</div>
+  </div></li>`}).join("");
+ const pp="Porta Portese, Roma";
+ document.getElementById("sunday").innerHTML=`<h3>${L.sunT}</h3><p>${L.sunP}</p><div class="card"><span class="k">${lang==="it"?"Ogni domenica, dalle 7 alle 14 circa":"Every Sunday, roughly 7 am to 2 pm"}</span><b>Mercato di Porta Portese</b><p>${lang==="it"?"Bancarelle da Porta Portese fino a Piazza Ippolito Nievo: tra mobili e abiti spuntano cassette di vinili e cd, da sfogliare con pazienza. Andate presto e tenete d'occhio portafoglio e telefono. Tram 8, fermata Ippolito Nievo.":"Stalls from Porta Portese to Piazza Ippolito Nievo: among furniture and clothes there are crates of records and CDs to dig through. Go early and watch your wallet and phone. Tram 8, Ippolito Nievo stop."}</p><a class="btn" href="${gm(pp)}" target="_blank" rel="noopener">${ICO.pin}${L.gm}</a></div>`;
+ document.getElementById("extra").innerHTML=`<h3>${L.exT}</h3><p>${L.exP}</p>`+EXTRA.map(e=>`<div class="card"><span class="k">${e.k[lang]}</span><b>${e.n}</b><p>${e.t[lang]}</p><p class="k">${e.a.replace(", Roma","")}</p><a class="btn" href="${gm(e.a)}" target="_blank" rel="noopener">${ICO.pin}${L.gm}</a></div>`).join("");
+}
+
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;lang=b.dataset.lang;try{localStorage.setItem("tappa-lang",lang)}catch(x){}render()});
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur=+b.dataset.i;try{history.replaceState(null,"","#"+DATA[cur].id)}catch(x){}render()});
+window.addEventListener("hashchange",()=>{const i=DATA.findIndex(x=>"#"+x.id===location.hash);if(i>=0){cur=i;render()}});
+setInterval(render,60000);
+if("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready).then(() => caches.open("tappa-1")).then(c => c.add(location.pathname)).catch(() => {});
+render();
+}
+</script>
+</body>
+</html>
